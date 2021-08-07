@@ -1,4 +1,4 @@
-# animality.h
+# animality-h
 A simple API wrapper that generates images & facts of any animal
 
 Required dependencies:
