@@ -5,7 +5,7 @@ Required dependencies:
 - [`libcurl`](https://github.com/curl/curl) for sending HTTPS requests.
 - [`cJSON`](https://github.com/DaveGamble/cJSON) for parsing the JSON response.
 
-## Installing
+## Installation
 
 ```sh
 $ git clone https://github.com/animality-xyz/animality.h.git
