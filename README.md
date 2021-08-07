@@ -1,9 +1,11 @@
 # animality.h
-C/C++ library for requesting to the [animality API.](https://animality.xyz).
+A simple API wrapper that generates images & facts of any animal
 
 Required dependencies:
 - [`libcurl`](https://github.com/curl/curl) for sending HTTPS requests.
 - [`cJSON`](https://github.com/DaveGamble/cJSON) for parsing the JSON response.
+
+## Installing
 
 ```sh
 $ git clone https://github.com/animality-xyz/animality.h.git
@@ -12,6 +14,8 @@ $ gcc -c animality.c -lcurl -ljson -o animality.o
 
 # ...do stuff with object file
 ```
+
+## Example
 
 The response from requesting to the library is this struct.
 ```c
