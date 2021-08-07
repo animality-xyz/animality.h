@@ -5,7 +5,7 @@ Required dependencies:
 - [`libcurl`](https://github.com/curl/curl) for sending HTTPS requests.
 - [`cJSON`](https://github.com/DaveGamble/cJSON) for parsing the JSON response.
 
-## Installation
+# Installation
 
 ```sh
 $ git clone https://github.com/animality-xyz/animality.h.git
@@ -15,7 +15,7 @@ $ gcc -c animality.c -lcurl -ljson -o animality.o
 # ...do stuff with object file
 ```
 
-## Example
+# Example
 
 The response from requesting to the library is this struct.
 ```c
