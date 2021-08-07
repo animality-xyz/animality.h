@@ -5,22 +5,22 @@
 #include <string.h>
 #include <time.h>
 
-// dependencies
+/* dependencies */
 #include <curl/curl.h>
 #include <cjson/cJSON.h>
 
-// size macros
+/* size macros */
 #define ANIMALS_LENGTH           15
 #define ANIMALS_MAX_EACH_SIZE    9
 
-// empty animal_t struct template
+/* empty animal_t struct template */
 #define AN_EMPTY_ANIMAL          { 0, NULL, NULL, NULL }
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-// animal enums used for requesting
+/* animal enums used for requesting */
 typedef enum {
     AN_CAT,
     AN_DOG,
@@ -40,7 +40,7 @@ typedef enum {
     AN_RANDOM
 } an_type_t;
 
-// main animality response type
+/* main animality response type */
 typedef struct {
     an_type_t type;
     char * name;
@@ -48,12 +48,12 @@ typedef struct {
     char * fact;
 } animal_t;
 
-// exported functions
+/* exported functions */
 void an_get(const an_type_t _t, animal_t * _out);
 void an_cleanup(animal_t * _tr);
 
 #ifdef __cplusplus
 }
-#endif // end extern "C"
+#endif
 
-#endif // ANIMALITY_H
+#endif
