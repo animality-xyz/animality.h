@@ -165,7 +165,7 @@ void an_get(const an_type_t _t, animal_t * _out) {
     /* retrieve the link attribute from the JSON response */
     _out->image_url = _easy_json_get(write_buffer, "link");
     
-    // free buffer before next request
+    /* free buffer before next request */
     free(write_buffer->buffer);
     write_buffer->buffer = NULL;
     
