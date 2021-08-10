@@ -1,0 +1,7 @@
+node_modules/
+build/
+deps/
+
+napi.h
+napi-inl.h
+napi-inl.deprecated.h
