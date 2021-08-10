@@ -8,11 +8,9 @@ Required dependencies:
 # Installation
 
 ```sh
-$ git clone https://github.com/animality-xyz/animality.h.git
+$ git clone https://github.com/animality-xyz/animality.h.git   # Clone the repo
 $ cd animality.h/
-$ gcc -c animality.c -lcurl -ljson -o animality.o
-
-# ...do stuff with object file
+$ gcc -c animality.c -o animality.o                            # Compile the C source. "-ljson" is your static library for "cJSON".
 ```
 
 # Example
@@ -26,9 +24,9 @@ typedef struct {
     char * fact;       // animal fact
 } animal_t;
 ```
-
+File: `example.c`
 ```c
-#include <animality.h>
+#include "animality.h"
 
 int main() {
     // create our animal struct
@@ -50,17 +48,23 @@ int main() {
     return 0;
 }
 ```
+Compile the example with:
+```bash
+$ gcc example.c -lcurl -ljson -lanimal
+# "-ljson"   is the static library for "cJSON".
+# "-lanimal" is the static library for "animality.h".
+```
 
 ## Node.js Addon
 For linux node.js users, good news! Because you can create a fast Node.js wrapper on this Library.
-**Preparing**
+- Preparing
 ```bash
 $ git clone https://github.com/animality-xyz/animality.h.git    # Clone the repo
 $ cd animality.h/
 $ mkdir deps                                                    # Create a directory for all of our header files
 ```
 
-#### 1. Installing dependencies
+### 1. Installing dependencies
 Make sure you installed all of it's dependencies first.
 
 - First, install and build `cJSON` (skip if you done this)
@@ -76,14 +80,14 @@ $ cp libjson.a path/to/animality/                     # Copy static library to t
 $ sudo apt-get install libcurl4-openssl-dev   # Install libcurl
 ```
 
-#### 2. Copy all header files to `deps/` directory
+### 2. Copy all header files to `deps/` directory
 Make sure you copied all of the header files to the <root>/deps/ directory.
 ```bash
 $ cp path/to/cJSON-clone/cJSON.h path/to/animality/deps/
 $ cp path/to/libcurl/include/*.h path/to/animality/deps/
 ```
 
-#### 3. Setting up node addon API
+### 3. Setting up node addon API
 - First, install the node modules it requires.
 ```bash
 $ cd path/to/animality
@@ -97,7 +101,7 @@ $ node -p "require('node-addon-api').include_dir"    # Get include path for node
 $ mv /some/path/here/*.h .                           # Move all of the header files to the current dir
 ```
 
-#### 4. Building the entire thing
+### 4. Building the entire thing
 - First, build the main file.
 ```bash
 $ gcc -c animality.c -D _AN_NODE_ADDON -o animality.o     # Compile the main C source file to an object file
@@ -109,7 +113,7 @@ $ node-gyp configure
 $ node-gyp build
 ```
 
-#### Enjoy!
+### Enjoy!
 ```js
 // require the library
 const library = require("./node_addon");
