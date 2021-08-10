@@ -158,6 +158,7 @@ void an_get(const an_type_t _t, animal_t * _out) {
     
     /* our standard write struct, for storing (temporary) HTTPS responses */
     _an_write_t * write_buffer = malloc(sizeof(_an_write_t));
+    write_buffer->buffer = NULL;
     
     /* request the img endpoint */
     _an_request(full_img_url, write_buffer);
@@ -201,6 +202,4 @@ void an_cleanup(animal_t * _tr) {
     
     if (_tr->fact != NULL)
         free(_tr->fact);
-    
-    free(_tr);
 }
