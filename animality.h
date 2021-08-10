@@ -6,15 +6,21 @@
 #include <time.h>
 
 /* dependencies */
+#ifdef _AN_NODE_ADDON
+#include "deps/curl.h"
+#include "deps/cJSON.h"
+#undef _AN_NODE_ADDON
+#else
 #include <curl/curl.h>
 #include <cjson/cJSON.h>
+#endif
 
 /* size macros */
-#define ANIMALS_LENGTH           15
-#define ANIMALS_MAX_EACH_SIZE    9
+#define ANIMALS_LENGTH 15
+#define ANIMALS_MAX_EACH_SIZE 9
 
 /* empty animal_t struct template */
-#define AN_EMPTY_ANIMAL          { 0, NULL, NULL, NULL }
+#define AN_EMPTY_ANIMAL { (an_type_t)0, NULL, NULL, NULL }
 
 #ifdef __cplusplus
 extern "C" {
@@ -55,5 +61,4 @@ void an_cleanup(animal_t * _tr);
 #ifdef __cplusplus
 }
 #endif
-
 #endif
