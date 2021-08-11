@@ -58,6 +58,7 @@ $ gcc example.c -lcurl -ljson -lanimal
 ## Node.js Addon
 For linux node.js users, good news! Because you can create a fast Node.js wrapper on this Library. To build it, simply run:
 ```bash
+$ git clone https://github.com/animality-xyz/animality.h.git && cd animality.h/
 $ sudo ./build_node.sh
 ```
 and that's it!
