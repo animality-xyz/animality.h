@@ -1,4 +1,4 @@
-# animality-h
+# animality.h
 A simple API wrapper that generates images & facts of any animal
 
 Required dependencies:
@@ -8,9 +8,9 @@ Required dependencies:
 # Installation
 
 ```sh
-$ git clone https://github.com/animality-xyz/animality.h.git   # Clone the repo
+$ git clone https://github.com/animality-xyz/animality.h.git
 $ cd animality.h/
-$ gcc -c animality.c -o animality.o                            # Compile the C source. "-ljson" is your static library for "cJSON".
+$ gcc -c animality.c -o animality.o
 ```
 
 # Example
