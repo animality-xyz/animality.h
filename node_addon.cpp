@@ -1,4 +1,4 @@
-#include "napi.h"
+#include "deps/napi.h"
 #include "animality.h"
 
 static char * copy_string(const char * str) {

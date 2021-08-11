@@ -7,13 +7,13 @@
 
 /* dependencies */
 #ifdef _AN_NODE_ADDON
-#include "deps/curl.h"
-#include "deps/cJSON.h"
-#undef _AN_NODE_ADDON
+#  include "deps/cJSON.h"
+#  undef _AN_NODE_ADDON
 #else
-#include <curl/curl.h>
-#include <cjson/cJSON.h>
+#  include <cjson/cJSON.h>
 #endif
+
+#include <curl/curl.h>
 
 /* size macros */
 #define ANIMALS_LENGTH 15
