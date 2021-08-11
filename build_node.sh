@@ -4,7 +4,7 @@ ANIMALITY_ROOT=$(pwd)
 ANIMALITY_DEPS=$(echo $ANIMALITY_ROOT"/deps/")
 
 if test -f $ANIMALITY_DEPS"libanimal.a"; then
-    printf " failed.\nerror: already built."
+    printf " failed.\nerror: already built.\n"
     exit 1
 fi
 
