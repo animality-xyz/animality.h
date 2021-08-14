@@ -3,7 +3,7 @@ A simple API wrapper that generates images & facts of any animal
 
 Required dependencies:
 - [`libcurl`](https://github.com/curl/curl) for sending HTTPS requests.
-- `pthreads` (for LINUX/POSIX devices)
+- `pthreads` for threads support (LINUX/POSIX devices only)
 
 # Installation
 
@@ -67,10 +67,10 @@ int main() {
 
     // wait for thread to terminate before we exit the main function
     an_thread_wait(thr);
-	
-	// global cleanup
-	an_cleanup(NULL);
-	
+    
+    // global cleanup
+    an_cleanup(NULL);
+    
     return 0;
 }
 ```
