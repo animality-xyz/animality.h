@@ -55,14 +55,14 @@ $ gcc example.c -lcurl -ljson -lanimal
 # "-lanimal" is the static library for "animality.h".
 # note: add "-lpthread" for async support (POSIX only)
 ```
-## Integrating with pthreads.h to make it asynchronously
+## Integrating with pthreads.h to make it async
 If you are using a POSIX operating system and have the `pthreads` library, you can make async calls!
 ```c
 #include "animality.h"
 
 // our request callback function!
 void callback(const animal_t * animal) {
-    printf("fact: %s\n", animal->fact);
+    printf("animal image url: %s\n", animal->image_url);
 }
 
 int main() {
