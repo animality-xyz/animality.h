@@ -59,16 +59,16 @@ void an_cleanup(animal_t * _tr);
 #ifdef _WIN32
 
 typedef HANDLE an_thread_t;
+typedef DWORD async_cb_ret_t;
 
-#define async_cb_ret_t DWORD
 #define an_thread_wait(t_) \
   WaitForSingleObject(t_, 15000)
 
 #else
 
 typedef pthread_t an_thread_t;
+typedef void * async_cb_ret_t;
 
-#define async_cb_ret_t void *
 #define an_thread_wait(t_) \
   pthread_join(t_, NULL)
 
