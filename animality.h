@@ -5,6 +5,18 @@
 #include <string.h>
 #include <time.h>
 
+/* async feature with pthread.h */
+#ifdef AN_ASYNC
+#  undef AN_ASYNC
+#endif
+
+#if defined __has_include
+#  if __has_include(<pthread.h>)
+#    define AN_ASYNC
+#    include <pthread.h>
+#  endif
+#endif
+
 /* dependencies */
 #ifdef _AN_NODE_ADDON
 #  include "deps/cJSON.h"
@@ -57,6 +69,16 @@ typedef struct {
 /* exported functions */
 void an_get(const an_type_t _t, animal_t * _out);
 void an_cleanup(animal_t * _tr);
+
+#ifdef AN_ASYNC
+typedef void (* an_callback_t)(const animal_t *);
+typedef struct {
+    an_callback_t callback;
+    an_type_t type;
+} an_thread_arg_t;
+
+const pthread_t an_get_async(const an_type_t _t, const an_callback_t cb);
+#endif
 
 #ifdef __cplusplus
 }

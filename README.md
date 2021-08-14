@@ -53,6 +53,29 @@ Compile the example with:
 $ gcc example.c -lcurl -ljson -lanimal
 # "-ljson"   is the static library for "cJSON".
 # "-lanimal" is the static library for "animality.h".
+# note: add "-lpthread" for async support (POSIX only)
+```
+## Integrating with pthreads.h to make it asynchronously
+If you are using a POSIX operating system and have the `pthreads` library, you can make async calls!
+```c
+#include "animality.c"
+
+// our request callback function!
+void callback(const animal_t * animal) {
+    printf("fact: %s\n", animal->fact);
+}
+
+int main() {
+    // create separate thread for requesting to the API
+    const pthread_t thr = an_get_async(AN_DOG, &callback);
+
+    // this will run while the thread is still requesting to the API
+    printf("Hello, World!\n");
+
+    // wait for thread to terminate before we exit the main function
+    pthread_join(thr, NULL);
+    return 0;
+}
 ```
 
 ## Node.js Addon

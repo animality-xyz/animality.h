@@ -181,6 +181,32 @@ void an_get(const an_type_t _t, animal_t * _out) {
     free(write_buffer);
 }
 
+/* async feature (POSIX only) */
+#ifdef AN_ASYNC
+static void * _an_async_cb(void * ptr) {
+    an_thread_arg_t * args = (an_thread_arg_t *)ptr;
+    animal_t an = AN_EMPTY_ANIMAL;
+
+    an_get(args->type, &an);
+    args->callback(&an);
+
+    an_cleanup(&an);
+
+    free(args);
+    pthread_exit(NULL);
+}
+
+const pthread_t an_get_async(const an_type_t _t, const an_callback_t cb) {
+    pthread_t pt;
+    an_thread_arg_t * arg = (an_thread_arg_t *)malloc(sizeof(an_thread_arg_t));
+    arg->callback = cb;
+    arg->type = _t;
+
+    pthread_create(&pt, NULL, &_an_async_cb, (void *)arg);
+    return pt;
+}
+#endif
+
 void an_cleanup(animal_t * _tr) {
     /* if the animal is NULL, then perform global cleanup */
     if (_tr == NULL) {
@@ -194,12 +220,18 @@ void an_cleanup(animal_t * _tr) {
     
     /* deallocate all values from the struct
        and the struct itself */
-    if (_tr->name != NULL)
+    if (_tr->name != NULL) {
         free(_tr->name);
-    
-    if (_tr->image_url != NULL)
+        _tr->name = NULL;
+    }
+
+    if (_tr->image_url != NULL) {
         free(_tr->image_url);
+        _tr->image_url = NULL;
+    }
     
-    if (_tr->fact != NULL)
+    if (_tr->fact != NULL) {
         free(_tr->fact);
+        _tr->fact = NULL;
+    }
 }
