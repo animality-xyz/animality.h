@@ -58,7 +58,7 @@ $ gcc example.c -lcurl -ljson -lanimal
 ## Integrating with pthreads.h to make it asynchronously
 If you are using a POSIX operating system and have the `pthreads` library, you can make async calls!
 ```c
-#include "animality.c"
+#include "animality.h"
 
 // our request callback function!
 void callback(const animal_t * animal) {
