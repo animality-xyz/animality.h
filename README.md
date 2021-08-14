@@ -8,8 +8,7 @@ Required dependencies:
 # Installation
 
 ```sh
-$ git clone https://github.com/animality-xyz/animality.h.git
-$ cd animality.h/
+$ git clone https://github.com/animality-xyz/animality.h.git && cd animality.h/
 $ gcc -c animality.c -o animality.o
 $ ar rcs -o libanimal.a animality.o
 ```
@@ -76,10 +75,14 @@ int main() {
 ```
 
 ## Node.js Addon
-For linux node.js users, good news! Because you can create a fast Node.js wrapper on this Library. To build it, simply run:
+For linux node.js users, good news! Because you can create a fast Node.js wrapper on this Library. To build it:
 ```bash
-$ git clone https://github.com/animality-xyz/animality.h.git && cd animality.h/
-$ sudo ./build_node.sh
+$ git clone https://github.com/animality-xyz/animality.h.git && cd animality.h/ && mkdir deps
+$ sudo npm i node-gyp && npm init -y && sudo npm i node-addon-api
+$ mv ./node_modules/node-addon-api/*.h ./deps
+$ gcc -c animality.c -o animality.o
+$ ar rcs -o libanimal.a animality.o && mv libanimal.a ./deps
+$ node-gyp configure && node-gyp build
 ```
 and that's it!
 
