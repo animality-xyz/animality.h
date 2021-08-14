@@ -13,8 +13,6 @@ mkdir deps && cd ..
 printf "\nanimality: installing 'libcurl'..."
 apt-get install libcurl4-openssl-dev > /dev/null
 
-printf " done.\nanimality: installing 'cJSON'..."
-git clone --quiet https://github.com/DaveGamble/cJSON.git > /dev/null
 cd $ANIMALITY_ROOT
 
 printf " done.\nanimality: installing 'node-gyp'...\n"
@@ -24,17 +22,7 @@ printf "animality: installing 'node-addon-api'...\n"
 npm init -y
 npm i node-addon-api
 
-cd .. && printf "animality: building dependency \"cJSON\"..."
-cd cJSON/
-
-gcc -c cJSON.c -o cJSON.o
-ar rcs -o libjson.a -c cJSON.o
-mv libjson.a cJSON.h $ANIMALITY_DEPS
-
-cd .. && rm -rf cJSON/
-
 printf " done.\nanimality: copying node api bindings..."
-cd $ANIMALITY_ROOT
 
 mv ./node_modules/node-addon-api/*.h ./deps/
 rm -rf ./node_modules/ && rm *.json

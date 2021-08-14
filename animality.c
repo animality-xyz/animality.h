@@ -69,37 +69,15 @@ static char * _parse_url(
     return full_url;
 }
 
-/* retrieves a JSON (string) value from the JSON string */
-static char * _easy_json_get(_an_write_t * wrote_buffer, const char * key) {
-    /* our output. this function returns NULL if fails */
-    char * output = NULL;
-    
-    /* allocate our (null-terminated) input string. */
-    char * input = malloc((wrote_buffer->size + 1) * sizeof(char));
-    memcpy(input, wrote_buffer->buffer, wrote_buffer->size);
-    input[wrote_buffer->size] = 0;
-    
-    /* parse the JSON string. */
-    cJSON * cj = cJSON_Parse(input);
-    
-    /* retrieve the value if succeeds. */
-    if (cj != NULL) {
-        cJSON * value = cJSON_GetObjectItemCaseSensitive(cj, key);
-        if (cJSON_IsString(value)) {
-            const size_t size = strlen(value->valuestring);
-            
-            output = malloc((size + 1) * sizeof(char));
-            output[size] = 0;
-            
-            memcpy(output, value->valuestring, size * sizeof(char));
-            
-            cJSON_Delete(value);
-        } else
-            cJSON_Delete(cj);
-    }
-    
-    /* deallocate input string. */
-    free(input);
+static char * _parse_json(const char * json, const unsigned char start_index) {
+    const size_t length = strlen(json);
+
+    char * output = malloc((length - start_index - 2) + sizeof(char));
+    output[length - start_index - 2] = 0;
+
+    for (size_t i = start_index; i < length - 2; i++)
+        output[i - start_index] = json[i];
+
     return output;
 }
 
@@ -164,8 +142,8 @@ void an_get(const an_type_t _t, animal_t * _out) {
     _an_request(full_img_url, write_buffer);
 
     /* retrieve the link attribute from the JSON response */
-    _out->image_url = _easy_json_get(write_buffer, "link");
-    
+    _out->image_url = _parse_json(write_buffer->buffer, 9);
+
     /* free buffer before next request */
     free(write_buffer->buffer);
     write_buffer->buffer = NULL;
@@ -174,7 +152,7 @@ void an_get(const an_type_t _t, animal_t * _out) {
     _an_request(full_fact_url, write_buffer);
     
     /* retrieve fact attribute from the JSON response */
-    _out->fact = _easy_json_get(write_buffer, "fact");
+    _out->fact = _parse_json(write_buffer->buffer, 9);
 
     /* free memory allocated */
     free(write_buffer->buffer);
@@ -198,7 +176,7 @@ static void * _an_async_cb(void * ptr) {
 
 const pthread_t an_get_async(const an_type_t _t, const an_callback_t cb) {
     pthread_t pt;
-    an_thread_arg_t * arg = (an_thread_arg_t *)malloc(sizeof(an_thread_arg_t));
+    an_thread_arg_t * arg = malloc(sizeof(an_thread_arg_t));
     arg->callback = cb;
     arg->type = _t;
 

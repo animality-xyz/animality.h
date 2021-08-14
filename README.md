@@ -3,7 +3,7 @@ A simple API wrapper that generates images & facts of any animal
 
 Required dependencies:
 - [`libcurl`](https://github.com/curl/curl) for sending HTTPS requests.
-- [`cJSON`](https://github.com/DaveGamble/cJSON) for parsing the JSON response.
+- `pthreads` (POSIX only, optional)
 
 # Installation
 
@@ -11,6 +11,7 @@ Required dependencies:
 $ git clone https://github.com/animality-xyz/animality.h.git
 $ cd animality.h/
 $ gcc -c animality.c -o animality.o
+$ ar rcs -o libanimal.a animality.o
 ```
 
 # Example
@@ -50,12 +51,10 @@ int main() {
 ```
 Compile the example with:
 ```bash
-$ gcc example.c -lcurl -ljson -lanimal
-# "-ljson"   is the static library for "cJSON".
-# "-lanimal" is the static library for "animality.h".
-# note: add "-lpthread" for async support (POSIX only)
+$ gcc example.c -lcurl -lanimal -lpthread
 ```
-## Integrating with pthreads.h to make it async
+> NOTE: If you are using windows or a non-POSIX system, remove the `-lpthread` option.
+## Async API calls
 If you are using a POSIX operating system and have the `pthreads` library, you can make async calls!
 ```c
 #include "animality.h"
