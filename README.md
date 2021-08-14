@@ -3,7 +3,7 @@ A simple API wrapper that generates images & facts of any animal
 
 Required dependencies:
 - [`libcurl`](https://github.com/curl/curl) for sending HTTPS requests.
-- `pthreads` (POSIX only, optional)
+- `pthreads` (for LINUX/POSIX devices)
 
 # Installation
 
@@ -15,7 +15,6 @@ $ ar rcs -o libanimal.a animality.o
 ```
 
 # Example
-
 The response from requesting to the library is this struct.
 ```c
 typedef struct {
@@ -25,7 +24,7 @@ typedef struct {
     char * fact;       // animal fact
 } animal_t;
 ```
-File: `example.c`
+Here is a simple request example to the API. Please note that the following example is synchronous (aka blocking).
 ```c
 #include "animality.h"
 
@@ -49,13 +48,8 @@ int main() {
     return 0;
 }
 ```
-Compile the example with:
-```bash
-$ gcc example.c -lcurl -lanimal -lpthread
-```
-> NOTE: If you are using windows or a non-POSIX system, remove the `-lpthread` option.
-## Async API calls
-If you are using a POSIX operating system and have the `pthreads` library, you can make async calls!
+If you want an asynchronous request, try this example!
+> NOTE: for LINUX/POSIX users, add `-lpthread` to the compiler flags in order to compile the example below.
 ```c
 #include "animality.h"
 
@@ -66,13 +60,17 @@ void callback(const animal_t * animal) {
 
 int main() {
     // create separate thread for requesting to the API
-    const pthread_t thr = an_get_async(AN_DOG, &callback);
+    const an_thread_t thr = an_get_async(AN_DOG, &callback);
 
     // this will run while the thread is still requesting to the API
     printf("Hello, World!\n");
 
     // wait for thread to terminate before we exit the main function
-    pthread_join(thr, NULL);
+    an_thread_wait(thr);
+	
+	// global cleanup
+	an_cleanup(NULL);
+	
     return 0;
 }
 ```

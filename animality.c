@@ -159,9 +159,7 @@ void an_get(const an_type_t _t, animal_t * _out) {
     free(write_buffer);
 }
 
-/* async feature (POSIX only) */
-#ifdef AN_ASYNC
-static void * _an_async_cb(void * ptr) {
+static async_cb_ret_t _an_async_cb(void * ptr) {
     an_thread_arg_t * args = (an_thread_arg_t *)ptr;
     animal_t an = AN_EMPTY_ANIMAL;
 
@@ -171,19 +169,26 @@ static void * _an_async_cb(void * ptr) {
     an_cleanup(&an);
 
     free(args);
+#ifdef _WIN32
+    return 0;
+#else
     pthread_exit(NULL);
+#endif
 }
 
-const pthread_t an_get_async(const an_type_t _t, const an_callback_t cb) {
-    pthread_t pt;
+const an_thread_t an_get_async(const an_type_t _t, const an_callback_t cb) {
+    an_thread_t pt;
     an_thread_arg_t * arg = malloc(sizeof(an_thread_arg_t));
     arg->callback = cb;
     arg->type = _t;
 
+#ifdef _WIN32
+    pt = CreateThread(NULL, 0, (LPTHREAD_START_ROUTINE)_an_async_cb, (void *)arg, 0, NULL);
+#else
     pthread_create(&pt, NULL, &_an_async_cb, (void *)arg);
+#endif
     return pt;
 }
-#endif
 
 void an_cleanup(animal_t * _tr) {
     /* if the animal is NULL, then perform global cleanup */

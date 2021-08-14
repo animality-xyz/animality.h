@@ -5,24 +5,10 @@
 #include <string.h>
 #include <time.h>
 
-/* async feature with pthread.h */
-#ifdef AN_ASYNC
-#  undef AN_ASYNC
-#endif
-
-#if defined __has_include
-#  if __has_include(<pthread.h>)
-#    define AN_ASYNC
-#    include <pthread.h>
-#  endif
-#endif
-
-/* dependencies */
-#ifdef _AN_NODE_ADDON
-#  include "deps/cJSON.h"
-#  undef _AN_NODE_ADDON
+#ifdef _WIN32
+#  include <windows.h>
 #else
-#  include <cjson/cJSON.h>
+#  include <pthread.h>
 #endif
 
 #include <curl/curl.h>
@@ -70,15 +56,31 @@ typedef struct {
 void an_get(const an_type_t _t, animal_t * _out);
 void an_cleanup(animal_t * _tr);
 
-#ifdef AN_ASYNC
+#ifdef _WIN32
+
+typedef HANDLE an_thread_t;
+
+#define async_cb_ret_t DWORD
+#define an_thread_wait(t_) \
+  WaitForSingleObject(t_, 15000)
+
+#else
+
+typedef pthread_t an_thread_t;
+
+#define async_cb_ret_t void *
+#define an_thread_wait(t_) \
+  pthread_join(t_, NULL)
+
+#endif
+
 typedef void (* an_callback_t)(const animal_t *);
 typedef struct {
     an_callback_t callback;
     an_type_t type;
 } an_thread_arg_t;
 
-const pthread_t an_get_async(const an_type_t _t, const an_callback_t cb);
-#endif
+const an_thread_t an_get_async(const an_type_t _t, const an_callback_t cb);
 
 #ifdef __cplusplus
 }
