@@ -6,7 +6,7 @@
 #include <time.h>
 
 #ifdef _WIN32
-#  include <windows.h>
+#  include <winbase.h>
 #else
 #  include <pthread.h>
 #endif
