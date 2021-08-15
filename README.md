@@ -6,7 +6,6 @@ Required dependencies:
 - `pthreads` for threads support (LINUX/POSIX devices only)
 
 # Installation
-
 ```sh
 $ git clone https://github.com/animality-xyz/animality.h.git && cd animality.h/
 $ gcc -c animality.c -o animality.o
@@ -14,6 +13,7 @@ $ ar rcs -o libanimal.a animality.o
 ```
 
 # Example
+
 The response from requesting to the library is this struct.
 ```c
 typedef struct {
@@ -47,8 +47,8 @@ int main() {
     return 0;
 }
 ```
-If you want an asynchronous request, try this example!
-> NOTE: for LINUX/POSIX users, add `-lpthread` to the compiler flags in order to compile the example below.
+If you want an asynchronous request, try this example:
+> For LINUX/POSIX users, add `-lpthread` to the compiler flags in order to compile the example below.
 ```c
 #include "animality.h"
 
