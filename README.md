@@ -6,7 +6,7 @@ Required dependencies:
 - `pthreads` (LINUX only, might be already installed by default)
 - `wininet` (Windows only, might be already installed by default)
 
-# Building
+# Installation
 ```sh
 $ git clone https://github.com/animality-xyz/animality.h.git && cd animality.h/
 $ gcc -c animality.c -o animality.o
