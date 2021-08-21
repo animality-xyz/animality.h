@@ -2,10 +2,11 @@
 A simple API wrapper that generates images & facts of any animal
 
 Required dependencies:
-- [`libcurl`](https://github.com/curl/curl) for sending HTTPS requests.
-- `pthreads` for threads support (LINUX/POSIX devices only)
+- [`libcurl`](https://github.com/curl/curl) (LINUX only)
+- `pthreads` (LINUX only, might be already installed by default)
+- `wininet` (Windows only, might be already installed by default)
 
-# Installation
+# Building
 ```sh
 $ git clone https://github.com/animality-xyz/animality.h.git && cd animality.h/
 $ gcc -c animality.c -o animality.o
@@ -49,7 +50,6 @@ int main() {
 ```
 If you want an asynchronous request, try this example:
 > For LINUX/POSIX users, add `-lpthread` to the compiler flags in order to compile the example below.
-
 ```c
 #include "animality.h"
 

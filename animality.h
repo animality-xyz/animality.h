@@ -1,17 +1,9 @@
-#ifndef ANIMALITY_H
-#define ANIMALITY_H
+#ifndef __ANIMALITY_H__
+#define __ANIMALITY_H__
 
 #include <stdlib.h>
 #include <string.h>
 #include <time.h>
-
-#ifdef _WIN32
-#  include <winbase.h>
-#else
-#  include <pthread.h>
-#endif
-
-#include <curl/curl.h>
 
 /* size macros */
 #define ANIMALS_LENGTH 15
@@ -57,21 +49,15 @@ void an_get(const an_type_t _t, animal_t * _out);
 void an_cleanup(animal_t * _tr);
 
 #ifdef _WIN32
-
-typedef HANDLE an_thread_t;
-typedef DWORD async_cb_ret_t;
+typedef void * an_thread_t;
 
 #define an_thread_wait(t_) \
-  WaitForSingleObject(t_, 15000)
-
+  (WaitForSingleObject(t_, 15000))
 #else
-
-typedef pthread_t an_thread_t;
-typedef void * async_cb_ret_t;
+typedef unsigned long int an_thread_t;
 
 #define an_thread_wait(t_) \
-  pthread_join(t_, NULL)
-
+  (pthread_join(t_, NULL))
 #endif
 
 typedef void (* an_callback_t)(const animal_t *);
@@ -80,7 +66,7 @@ typedef struct {
     an_type_t type;
 } an_thread_arg_t;
 
-const an_thread_t an_get_async(const an_type_t _t, const an_callback_t cb);
+an_thread_t an_get_async(const an_type_t _t, const an_callback_t cb);
 
 #ifdef __cplusplus
 }

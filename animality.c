@@ -1,7 +1,37 @@
 #include "animality.h"
 
+#ifdef _WIN32
+#include <winbase.h>
+#include <wininet.h>
+
+static HINTERNET internet = NULL;
+static HINTERNET connected = NULL;
+
+typedef DWORD async_cb_ret_t;
+#else
+#include <pthread.h>
+#include <curl/curl.h>
+
+typedef void * async_cb_ret_t;
+#endif
+
+/* base URLs */
+#ifdef _WIN32
+#define IMG_BASE_URL_LEN    6
+#define FACT_BASE_URL_LEN   7
+
+static const char img_base_url[IMG_BASE_URL_LEN]   = "/img/";
+static const char fact_base_url[FACT_BASE_URL_LEN] = "/fact/";
+#else
+#define IMG_BASE_URL_LEN    31
+#define FACT_BASE_URL_LEN   32
+
+static const char img_base_url[IMG_BASE_URL_LEN]   = "https://api.animality.xyz/img/";
+static const char fact_base_url[FACT_BASE_URL_LEN] = "https://api.animality.xyz/fact/";
+#endif
+
 /* ALL available animals */
-static const char _animals[ANIMALS_LENGTH][ANIMALS_MAX_EACH_SIZE] = {
+static const char animals_list[ANIMALS_LENGTH][ANIMALS_MAX_EACH_SIZE] = {
     "cat",
     "dog",
     "bird",
@@ -19,30 +49,34 @@ static const char _animals[ANIMALS_LENGTH][ANIMALS_MAX_EACH_SIZE] = {
     "penguin"
 };
 
+/* utility function to dynamically push a string to another */
+#ifdef _WIN32
+static void strpush(char ** str, const char * other, const unsigned long other_len) {
+    const unsigned long str_len = strlen(*str);
+    
+    *str = realloc(*str, str_len + other_len);
+    strcpy(*str + str_len, other);
+}
+#endif
+
 /* generates a random animal index */
-static unsigned char _generate_index(void) {
+static unsigned char generate_index(void) {
     srand(time(NULL));
     return rand() % ANIMALS_LENGTH;
 }
 
-/* this is 0 if it's not initiated, otherwise 1 */
-static unsigned char _curl_status = 0;
+static unsigned char initiated = 0;
 
-/* ALL used base URLs */
-static const char _img_base_url [31] = "https://api.animality.xyz/img/";
-static const char _fact_base_url[32] = "https://api.animality.xyz/fact/";
-
-/* our write struct */
+/* in linux, we need a struct, in windows, we only need a string to write the buffer. */
+#ifndef _WIN32
 typedef struct {
     char * buffer;
     size_t size;
-} _an_write_t;
+} an_write_t;
 
-/* the write function to be called by CURL
-   (copied from the CURL website) */
 static size_t _write_func(void * contents, size_t size, size_t nmemb, void * write_buf) {
     const size_t total_size = size * nmemb;
-    _an_write_t * buf = (_an_write_t *)write_buf;
+    an_write_t * buf = (an_write_t *)write_buf;
     
     buf->buffer = realloc(buf->buffer, buf->size + total_size + 1);
     memcpy(&(buf->buffer[buf->size]), contents, total_size);
@@ -51,13 +85,13 @@ static size_t _write_func(void * contents, size_t size, size_t nmemb, void * wri
     
     return total_size;
 }
+#endif
 
 /* concatenates the base URL with the animal string. */
 static char * _parse_url(
     const char * base_url, const unsigned char base_url_size, 
     const char * end_url, const unsigned char size
 ) {
-    
     /* allocate joined (null-terminated) string */
     char * full_url = malloc((base_url_size + size + 1) * sizeof(char));
     full_url[base_url_size + size] = 0;
@@ -69,7 +103,7 @@ static char * _parse_url(
     return full_url;
 }
 
-static char * _parse_json(const char * json, const unsigned char start_index) {
+static char * parse_json(const char * json, const unsigned char start_index) {
     const size_t length = strlen(json);
 
     char * output = malloc((length - start_index - 2) + sizeof(char));
@@ -82,11 +116,46 @@ static char * _parse_json(const char * json, const unsigned char start_index) {
 }
 
 /* performs the HTTPS request to the animality API. */
-static void _an_request(char * full_url, _an_write_t * write) {
-    /* if it's somehow still not deallocated yet, deallocate it */
-    if (write->buffer != NULL)
-        free(write->buffer);
+#ifdef _WIN32
+static char * request(char * full_url)
+#else
+static void request(char * full_url, an_write_t * write)
+#endif
+{
+
+#ifdef _WIN32
+    HINTERNET req = HttpOpenRequest(connected, "GET", full_url, NULL, NULL, NULL, INTERNET_FLAG_SECURE, 0);
+    HttpSendRequestA(req, NULL, 0, NULL, 0);
+    char * output = NULL;
     
+    while (1) {
+        /* check if more data is available */
+        DWORD size;
+        if (!InternetQueryDataAvailable(req, &size, 0, 0) || !size)
+            break;
+        
+        /* request for the pooped out data */
+        char * out = malloc(size + 1);
+        if (!InternetReadFile(req, out, size, &size) || !size) {
+            free(out);
+            break;
+        }
+        
+        /* null terminate it */
+        out[size] = 0;
+        
+        /* first iteration, directly allocate it */
+        if (output == NULL) {
+            output = malloc(size + 1);
+            memcpy(output, out, size + 1);
+            continue;
+        }
+        
+        /* push buffer to the total string */
+        strpush(&output, out, size);
+        free(out);
+    }
+#else
     /* allocate stuff */
     write->buffer = malloc(sizeof(char));
     write->size   = 0;
@@ -102,16 +171,25 @@ static void _an_request(char * full_url, _an_write_t * write) {
     /* send HTTPS request */
     curl_easy_perform(curl);
     curl_easy_cleanup(curl);
-    
+#endif
     /* deallocate full URL string */
     free(full_url);
+#ifdef _WIN32
+    InternetCloseHandle(req);
+    return output;
+#endif
 }
 
 void an_get(const an_type_t _t, animal_t * _out) {
     /* initiate CURL if it's not initiated */
-    if (!_curl_status) {
+    if (!initiated) {
+#ifdef _WIN32
+        internet = InternetOpenA("Mozilla/5.0", INTERNET_OPEN_TYPE_PRECONFIG, NULL, NULL, 0);
+        connected = InternetConnectA(internet, "api.animality.xyz", 443, NULL, NULL, INTERNET_SERVICE_HTTP, 0, 0);
+#else
         curl_global_init(CURL_GLOBAL_DEFAULT);
-        _curl_status++;
+#endif
+        initiated = 1;
     }
     
     /* in case the struct is NULL, to prevent seg fault */
@@ -122,41 +200,50 @@ void an_get(const an_type_t _t, animal_t * _out) {
     _out->type = _t;
     
     /* save the animal order and the animal name length */
-    const unsigned char index = _t == AN_RANDOM ? _generate_index() : (unsigned char)_t;
-    const unsigned char animal_name_length = strlen(_animals[index]);
+    const unsigned char index = _t == AN_RANDOM ? generate_index() : (unsigned char)_t;
+    const unsigned char animal_name_length = strlen(animals_list[index]);
     
     /* save the animal name */
     _out->name = malloc((animal_name_length + 1) * sizeof(char));
     _out->name[animal_name_length] = 0;
-    memcpy(_out->name, _animals[index], animal_name_length * sizeof(char));
+    memcpy(_out->name, animals_list[index], animal_name_length * sizeof(char));
     
     /* concatenate the base URL with the requested animal string */
-    char * full_img_url  = _parse_url(_img_base_url,  30, _animals[index], animal_name_length);
-    char * full_fact_url = _parse_url(_fact_base_url, 31, _animals[index], animal_name_length);
+    char * full_img_url  = _parse_url(img_base_url,  IMG_BASE_URL_LEN - 1,  animals_list[index], animal_name_length);
+    char * full_fact_url = _parse_url(fact_base_url, FACT_BASE_URL_LEN - 1, animals_list[index], animal_name_length);
     
+#ifndef _WIN32
     /* our standard write struct, for storing (temporary) HTTPS responses */
-    _an_write_t * write_buffer = malloc(sizeof(_an_write_t));
+    an_write_t * write_buffer = malloc(sizeof(an_write_t));
     write_buffer->buffer = NULL;
+#endif
     
-    /* request the img endpoint */
-    _an_request(full_img_url, write_buffer);
-
-    /* retrieve the link attribute from the JSON response */
-    _out->image_url = _parse_json(write_buffer->buffer, 9);
-
-    /* free buffer before next request */
+    /* request stuff */
+#ifdef _WIN32
+    char * img_response = request(full_img_url);
+    if (img_response != NULL) {
+        _out->image_url = parse_json(img_response, 9);
+        free(img_response);
+    }
+    
+    char * fact_response = request(full_fact_url);
+    if (fact_response != NULL) {
+        _out->fact = parse_json(fact_response, 9);
+        free(fact_response);
+    }
+#else
+    request(full_img_url, write_buffer);
+    _out->image_url = parse_json(write_buffer->buffer, 9);
+    
     free(write_buffer->buffer);
-    write_buffer->buffer = NULL;
     
-    /* request the fact endpoint */
-    _an_request(full_fact_url, write_buffer);
-    
-    /* retrieve fact attribute from the JSON response */
-    _out->fact = _parse_json(write_buffer->buffer, 9);
+    request(full_fact_url, write_buffer);
+    _out->fact = parse_json(write_buffer->buffer, 9);
 
     /* free memory allocated */
     free(write_buffer->buffer);
     free(write_buffer);
+#endif
 }
 
 static async_cb_ret_t _an_async_cb(void * ptr) {
@@ -176,7 +263,7 @@ static async_cb_ret_t _an_async_cb(void * ptr) {
 #endif
 }
 
-const an_thread_t an_get_async(const an_type_t _t, const an_callback_t cb) {
+an_thread_t an_get_async(const an_type_t _t, const an_callback_t cb) {
     an_thread_t pt;
     an_thread_arg_t * arg = malloc(sizeof(an_thread_arg_t));
     arg->callback = cb;
@@ -193,9 +280,14 @@ const an_thread_t an_get_async(const an_type_t _t, const an_callback_t cb) {
 void an_cleanup(animal_t * _tr) {
     /* if the animal is NULL, then perform global cleanup */
     if (_tr == NULL) {
-        if (_curl_status) {
+        if (initiated) {
+#ifdef _WIN32
+            InternetCloseHandle(internet);
+            InternetCloseHandle(connected);
+#else
             curl_global_cleanup();
-            _curl_status--;
+#endif
+            initiated = 0;
         }
         
         return;
