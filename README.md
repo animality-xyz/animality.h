@@ -6,11 +6,17 @@ Required dependencies:
 - `pthreads` (LINUX only, might be already installed by default)
 - `wininet` (Windows only, might be already installed by default)
 
-# Installation
+# Building the Library
+### Windows (MinGW) or Linux:
 ```sh
 $ git clone https://github.com/animality-xyz/animality.h.git && cd animality.h/
 $ gcc -c animality.c -o animality.o
 $ ar rcs -o libanimal.a animality.o
+```
+### Windows (Visual C++):
+```bat
+> git clone https://github.com/animality-xyz/animality.h.git && cd animality.h
+> cl /LD animality.c
 ```
 
 # Example

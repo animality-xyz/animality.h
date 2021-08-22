@@ -1,7 +1,15 @@
-#include "animality.h"
-
 #ifdef _WIN32
+
+/* visual C++ */
+#ifdef _MSC_VER
+#include <windows.h>
+#define AN_EXPORT __declspec(dllexport)
+#pragma comment(lib, "wininet.lib")
+#else
+/* mingw */
 #include <winbase.h>
+#endif
+
 #include <wininet.h>
 
 static HINTERNET internet = NULL;
@@ -13,6 +21,16 @@ typedef DWORD async_cb_ret_t;
 #include <curl/curl.h>
 
 typedef void * async_cb_ret_t;
+#endif
+
+#include "animality.h"
+
+/* 
+  windows mingw or linux, 
+  this would already be set as __declspec(dllexport) if on windows visual C++ 
+*/
+#ifndef AN_EXPORT
+#define AN_EXPORT
 #endif
 
 /* base URLs */
@@ -180,7 +198,7 @@ static void request(char * full_url, an_write_t * write)
 #endif
 }
 
-void an_get(const an_type_t _t, animal_t * _out) {
+AN_EXPORT void an_get(const an_type_t _t, animal_t * _out) {
     /* initiate CURL if it's not initiated */
     if (!initiated) {
 #ifdef _WIN32
@@ -246,38 +264,7 @@ void an_get(const an_type_t _t, animal_t * _out) {
 #endif
 }
 
-static async_cb_ret_t _an_async_cb(void * ptr) {
-    an_thread_arg_t * args = (an_thread_arg_t *)ptr;
-    animal_t an = AN_EMPTY_ANIMAL;
-
-    an_get(args->type, &an);
-    args->callback(&an);
-
-    an_cleanup(&an);
-
-    free(args);
-#ifdef _WIN32
-    return 0;
-#else
-    pthread_exit(NULL);
-#endif
-}
-
-an_thread_t an_get_async(const an_type_t _t, const an_callback_t cb) {
-    an_thread_t pt;
-    an_thread_arg_t * arg = malloc(sizeof(an_thread_arg_t));
-    arg->callback = cb;
-    arg->type = _t;
-
-#ifdef _WIN32
-    pt = CreateThread(NULL, 0, (LPTHREAD_START_ROUTINE)_an_async_cb, (void *)arg, 0, NULL);
-#else
-    pthread_create(&pt, NULL, &_an_async_cb, (void *)arg);
-#endif
-    return pt;
-}
-
-void an_cleanup(animal_t * _tr) {
+AN_EXPORT void an_cleanup(animal_t * _tr) {
     /* if the animal is NULL, then perform global cleanup */
     if (_tr == NULL) {
         if (initiated) {
@@ -309,4 +296,35 @@ void an_cleanup(animal_t * _tr) {
         free(_tr->fact);
         _tr->fact = NULL;
     }
+}
+
+static async_cb_ret_t _an_async_cb(void * ptr) {
+    an_thread_arg_t * args = (an_thread_arg_t *)ptr;
+    animal_t an = AN_EMPTY_ANIMAL;
+
+    an_get(args->type, &an);
+    args->callback(&an);
+
+    an_cleanup(&an);
+
+    free(args);
+#ifdef _WIN32
+    return 0;
+#else
+    pthread_exit(NULL);
+#endif
+}
+
+AN_EXPORT an_thread_t an_get_async(const an_type_t _t, const an_callback_t cb) {
+    an_thread_t pt;
+    an_thread_arg_t * arg = malloc(sizeof(an_thread_arg_t));
+    arg->callback = cb;
+    arg->type = _t;
+
+#ifdef _WIN32
+    pt = CreateThread(NULL, 0, (LPTHREAD_START_ROUTINE)_an_async_cb, (void *)arg, 0, NULL);
+#else
+    pthread_create(&pt, NULL, &_an_async_cb, (void *)arg);
+#endif
+    return pt;
 }
