@@ -111,12 +111,12 @@ static char * _parse_url(
     const char * end_url, const unsigned char size
 ) {
     /* allocate joined (null-terminated) string */
-    char * full_url = malloc((base_url_size + size + 1) * sizeof(char));
+    char * full_url = malloc(base_url_size + size + 1);
     full_url[base_url_size + size] = 0;
     
     /* copy both values to the new memory block */
-    memcpy(full_url, base_url, base_url_size * sizeof(char));
-    memcpy(full_url + base_url_size, end_url, size * sizeof(char));
+    memcpy(full_url, base_url, base_url_size);
+    memcpy(full_url + base_url_size, end_url, size);
     
     return full_url;
 }
@@ -124,7 +124,7 @@ static char * _parse_url(
 static char * parse_json(const char * json, const unsigned char start_index) {
     const size_t length = strlen(json);
 
-    char * output = malloc((length - start_index - 2) + sizeof(char));
+    char * output = malloc((length - start_index - 2) + 1);
     output[length - start_index - 2] = 0;
 
     for (size_t i = start_index; i < length - 2; i++)
@@ -175,7 +175,7 @@ static void request(char * full_url, an_write_t * write)
     }
 #else
     /* allocate stuff */
-    write->buffer = malloc(sizeof(char));
+    write->buffer = malloc(1);
     write->size   = 0;
     
     /* setup CURL */
@@ -222,9 +222,9 @@ AN_EXPORT void an_get(const an_type_t _t, animal_t * _out) {
     const unsigned char animal_name_length = strlen(animals_list[index]);
     
     /* save the animal name */
-    _out->name = malloc((animal_name_length + 1) * sizeof(char));
+    _out->name = malloc(animal_name_length + 1);
     _out->name[animal_name_length] = 0;
-    memcpy(_out->name, animals_list[index], animal_name_length * sizeof(char));
+    memcpy(_out->name, animals_list[index], animal_name_length);
     
     /* concatenate the base URL with the requested animal string */
     char * full_img_url  = _parse_url(img_base_url,  IMG_BASE_URL_LEN - 1,  animals_list[index], animal_name_length);
