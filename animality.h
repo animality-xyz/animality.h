@@ -16,6 +16,15 @@
 extern "C" {
 #endif
 
+/* windows visual C++ */
+#ifndef AN_EXPORT
+#ifdef _MSC_VER
+#define AN_EXTERN __declspec(dllimport)
+#else
+#define AN_EXTERN
+#endif
+#endif
+
 /* animal enums used for requesting */
 typedef enum {
     AN_CAT,
@@ -44,9 +53,11 @@ typedef struct {
     char * fact;
 } animal_t;
 
+#ifdef AN_EXTERN
 /* exported functions */
-void an_get(const an_type_t _t, animal_t * _out);
-void an_cleanup(animal_t * _tr);
+AN_EXTERN void an_get(const an_type_t _t, animal_t * _out);
+AN_EXTERN void an_cleanup(animal_t * _tr);
+#endif
 
 #ifdef _WIN32
 typedef void * an_thread_t;
@@ -54,7 +65,7 @@ typedef void * an_thread_t;
 #define an_thread_wait(t_) \
   (WaitForSingleObject(t_, 15000))
 #else
-typedef unsigned long int an_thread_t;
+typedef unsigned long an_thread_t;
 
 #define an_thread_wait(t_) \
   (pthread_join(t_, NULL))
@@ -66,7 +77,9 @@ typedef struct {
     an_type_t type;
 } an_thread_arg_t;
 
-an_thread_t an_get_async(const an_type_t _t, const an_callback_t cb);
+#ifdef AN_EXTERN
+AN_EXTERN an_thread_t an_get_async(const an_type_t _t, const an_callback_t cb);
+#endif
 
 #ifdef __cplusplus
 }

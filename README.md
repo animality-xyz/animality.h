@@ -1,22 +1,22 @@
 # animality.h
-A simple API wrapper that generates images & facts of any animal
+A simple API wrapper that generates images & facts of any animal. Tested on Windows (Visual C++ and MinGW) and Linux (GCC).
 
 Required dependencies:
-- [`libcurl`](https://github.com/curl/curl) (LINUX only)
-- `pthreads` (LINUX only, might be already installed by default)
+- [`libcurl`](https://github.com/curl/curl) (Linux only)
+- `pthreads` (Linux only, might be already installed by default)
 - `wininet` (Windows only, might be already installed by default)
 
 # Building the Library
-### Windows (MinGW) or Linux:
+### Windows (MinGW) or Linux
 ```sh
-$ git clone https://github.com/animality-xyz/animality.h.git && cd animality.h/
-$ gcc -c animality.c -o animality.o
-$ ar rcs -o libanimal.a animality.o
+git clone https://github.com/animality-xyz/animality.h.git && cd animality.h/
+gcc -c animality.c -o animality.o
+ar rcs -o libanimal.a animality.o
 ```
-### Windows (Visual C++):
+### Windows (Visual C++)
 ```bat
-> git clone https://github.com/animality-xyz/animality.h.git && cd animality.h
-> cl /LD animality.c
+git clone https://github.com/animality-xyz/animality.h.git && cd animality.h
+cl /LD animality.c
 ```
 
 # Example
@@ -78,32 +78,4 @@ int main() {
     
     return 0;
 }
-```
-
-## Node.js Addon
-For linux node.js users, good news! Because you can create a fast Node.js wrapper on this library. To build it:
-```bash
-$ git clone https://github.com/animality-xyz/animality.h.git && cd animality.h/ && mkdir deps
-$ sudo npm i node-gyp && npm init -y && sudo npm i node-addon-api
-$ mv ./node_modules/node-addon-api/*.h ./deps
-$ gcc -c animality.c -o animality.o
-$ ar rcs -o libanimal.a animality.o && mv libanimal.a ./deps
-$ node-gyp configure && node-gyp build
-```
-and that's it!
-
-### Example
-```js
-// require the library
-const library = require("./node_addon");
-
-// request for an animal
-library.dog().then(out => console.log(out));
-
-// use the synchronous library (not recommended)
-const blockingLibrary = library.blocking();
-
-// request for an animal
-const out = blockingLibrary.dog();
-console.log(out);
 ```
