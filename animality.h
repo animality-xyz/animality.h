@@ -6,7 +6,7 @@
 #include <time.h>
 
 /* size macros */
-#define ANIMALS_LENGTH 15
+#define ANIMALS_LENGTH 16
 #define ANIMALS_MAX_EACH_SIZE 9
 
 /* empty animal_t struct template */
