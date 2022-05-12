@@ -42,6 +42,7 @@ typedef enum {
     AN_FROG,
     AN_DUCK,
     AN_PENGUIN,
+    AN_AXOLOTL,
     AN_RANDOM
 } an_type_t;
 
