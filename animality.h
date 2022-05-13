@@ -6,7 +6,7 @@
 #include <time.h>
 
 /* size macros */
-#define ANIMALS_LENGTH 16
+#define ANIMALS_LENGTH 17
 #define ANIMALS_MAX_EACH_SIZE 9
 
 /* empty animal_t struct template */
@@ -35,6 +35,7 @@ typedef enum {
     AN_KOALA,
     AN_FOX,
     AN_WHALE,
+    AN_DOLPHIN,
     AN_KANGAROO,
     AN_BUNNY,
     AN_LION,
