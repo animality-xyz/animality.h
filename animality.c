@@ -58,6 +58,7 @@ static const char animals_list[ANIMALS_LENGTH][ANIMALS_MAX_EACH_SIZE] = {
     "koala",
     "fox",
     "whale",
+    "dolphin",
     "kangaroo",
     "bunny",
     "lion",
