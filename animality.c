@@ -66,7 +66,8 @@ static const char animals_list[ANIMALS_LENGTH][ANIMALS_MAX_EACH_SIZE] = {
     "frog",
     "duck",
     "penguin",
-    "axolotl"
+    "axolotl",
+    "capybara"
 };
 
 /* utility function to dynamically push a string to another */
